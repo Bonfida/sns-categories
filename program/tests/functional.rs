@@ -159,10 +159,7 @@ async fn test_offer() {
             #[cfg(not(feature = "no-signer"))]
             signer: &Pubkey::default(),
         },
-        remove_member::Params {
-            category_member,
-            category_name: category_name.clone(),
-        },
+        remove_member::Params { category_member },
     );
     sign_send_instructions(&mut prg_test_ctx, vec![ix], vec![])
         .await

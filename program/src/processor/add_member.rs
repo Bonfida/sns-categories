@@ -83,6 +83,7 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         // Check keys
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
+        check_account_key(accounts.central_state, &crate::central_state::KEY)?;
         #[cfg(not(feature = "no-signer"))]
         check_account_key(accounts.signer, &crate::state::SIGNER)?;
 

@@ -1,9 +1,8 @@
 //! Remove category member
+
 use crate::{
-    error::SnsCategoriesError,
-    state::category_metadata::CategoryMetadata,
-    state::Tag,
-    utils::{get_category_member_key, get_category_metadata_key},
+    error::SnsCategoriesError, state::category_metadata::CategoryMetadata, state::Tag,
+    utils::get_category_member_key,
 };
 use {
     bonfida_utils::{
@@ -11,6 +10,7 @@ use {
         BorshSize, InstructionsAccount,
     },
     borsh::{BorshDeserialize, BorshSerialize},
+    solana_program::program_pack::Pack,
     solana_program::{
         account_info::{next_account_info, AccountInfo},
         entrypoint::ProgramResult,
@@ -19,12 +19,11 @@ use {
         pubkey::Pubkey,
         system_program,
     },
+    spl_name_service::state::NameRecordHeader,
 };
 
 #[derive(BorshDeserialize, BorshSerialize, BorshSize)]
 pub struct Params {
-    // The category name
-    pub category_name: String,
     // The category member
     pub category_member: String,
 }
@@ -77,6 +76,7 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         // Check keys
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
+        check_account_key(accounts.central_state, &crate::central_state::KEY)?;
         #[cfg(not(feature = "no-signer"))]
         check_account_key(accounts.signer, &crate::state::SIGNER)?;
 
@@ -94,14 +94,13 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
 }
 
 pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) -> ProgramResult {
-    let Params {
-        category_name,
-        category_member,
-    } = params;
+    let Params { category_member } = params;
     let accounts = Accounts::parse(accounts, program_id)?;
 
-    let key = get_category_metadata_key(&category_name);
-    check_account_key(accounts.category_metadata, &key)?;
+    let member_registry = NameRecordHeader::unpack_unchecked(
+        &accounts.category_member.data.borrow()[..NameRecordHeader::LEN],
+    )?;
+    check_account_key(accounts.category_metadata, &member_registry.parent_name)?;
 
     let mut category_metadata =
         CategoryMetadata::from_buffer(accounts.category_metadata, Tag::CategoryMetadata)?;
@@ -116,7 +115,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
         spl_name_service::ID,
         0,
         category_metadata.try_to_vec().unwrap(),
-        key,
+        *accounts.category_metadata.key,
         crate::central_state::KEY,
         None,
     )?;
