@@ -9,7 +9,7 @@ use {
 #[derive(BorshDeserialize, BorshSerialize, FromPrimitive)]
 pub enum ProgramInstruction {
     /// Create category account
-    /// 
+    ///
     /// | Index | Writable | Signer | Description                     |
     /// | ----------------------------------------------------------- |
     /// | 0     | ❌        | ❌      | The system program account      |
@@ -20,7 +20,7 @@ pub enum ProgramInstruction {
     /// | 5     | ❌        | ✅      | The required instruction signer |
     CreateCategory,
     /// Create category account
-    /// 
+    ///
     /// | Index | Writable | Signer | Description                     |
     /// | ----------------------------------------------------------- |
     /// | 0     | ❌        | ❌      | The system program account      |
@@ -32,7 +32,7 @@ pub enum ProgramInstruction {
     /// | 6     | ❌        | ✅      | The required instruction signer |
     AddMember,
     /// Remove category member
-    /// 
+    ///
     /// | Index | Writable | Signer | Description                     |
     /// | ----------------------------------------------------------- |
     /// | 0     | ❌        | ❌      | The system program account      |

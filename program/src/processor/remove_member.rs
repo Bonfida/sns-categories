@@ -1,7 +1,9 @@
 //! Remove category member
 use crate::{
-    error::SnsCategoriesError, state::category_metadata::CategoryMetadata, state::Tag,
-    utils::get_hashed_name,
+    error::SnsCategoriesError,
+    state::category_metadata::CategoryMetadata,
+    state::Tag,
+    utils::{get_category_member_key, get_category_metadata_key},
 };
 use {
     bonfida_utils::{
@@ -17,7 +19,6 @@ use {
         pubkey::Pubkey,
         system_program,
     },
-    spl_name_service::state::get_seeds_and_key,
 };
 
 #[derive(BorshDeserialize, BorshSerialize, BorshSize)]
@@ -76,6 +77,8 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         // Check keys
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
+        #[cfg(not(feature = "no-signer"))]
+        check_account_key(accounts.signer, &crate::state::SIGNER)?;
 
         // Check owners
         check_account_owner(accounts.category_metadata, &spl_name_service::ID)?;
@@ -97,14 +100,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
     } = params;
     let accounts = Accounts::parse(accounts, program_id)?;
 
-    // Update parent information
-    let hashed = get_hashed_name(&category_name);
-    let (key, _) = get_seeds_and_key(
-        &spl_name_service::ID,
-        hashed,
-        Some(&crate::central_state::KEY),
-        None,
-    );
+    let key = get_category_metadata_key(&category_name);
     check_account_key(accounts.category_metadata, &key)?;
 
     let mut category_metadata =
@@ -134,14 +130,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
         &[seeds],
     )?;
 
-    // Remove category member
-    let hashed = get_hashed_name(&category_member);
-    let (key, _) = get_seeds_and_key(
-        &spl_name_service::ID,
-        hashed.clone(),
-        None,
-        Some(accounts.category_metadata.key),
-    );
+    let key = get_category_member_key(&category_member, accounts.category_metadata.key);
     check_account_key(accounts.category_member, &key)?;
 
     let ix = spl_name_service::instruction::delete(

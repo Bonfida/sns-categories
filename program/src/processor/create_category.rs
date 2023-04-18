@@ -2,7 +2,10 @@
 
 use solana_program::program_pack::Pack;
 
-use crate::{state::category_metadata::CategoryMetadata, utils::get_hashed_name};
+use crate::{
+    state::category_metadata::CategoryMetadata,
+    utils::{get_category_metadata_key, get_hashed_name},
+};
 use {
     bonfida_utils::{
         checks::{check_account_key, check_account_owner, check_signer},
@@ -19,10 +22,7 @@ use {
         system_program,
         sysvar::Sysvar,
     },
-    spl_name_service::{
-        instruction::NameRegistryInstruction,
-        state::{get_seeds_and_key, NameRecordHeader},
-    },
+    spl_name_service::{instruction::NameRegistryInstruction, state::NameRecordHeader},
 };
 
 #[derive(BorshDeserialize, BorshSerialize, BorshSize)]
@@ -74,6 +74,8 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         // Check keys
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
+        #[cfg(not(feature = "no-signer"))]
+        check_account_key(accounts.signer, &crate::state::SIGNER)?;
 
         // Check owners
         check_account_owner(accounts.category_metadata, &system_program::ID)?;
@@ -92,12 +94,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
     let accounts = Accounts::parse(accounts, program_id)?;
 
     let hashed = get_hashed_name(&category_name);
-    let (key, _) = get_seeds_and_key(
-        &spl_name_service::ID,
-        hashed.clone(),
-        Some(&crate::central_state::KEY),
-        None,
-    );
+    let key = get_category_metadata_key(&category_name);
     check_account_key(accounts.category_metadata, &key)?;
 
     let category_metadata = CategoryMetadata::new(&category_name);
