@@ -16,6 +16,7 @@ use {
         signer::{keypair::Keypair, Signer},
     },
 };
+use sns_categories::utils::get_name_key;
 pub mod common;
 
 #[tokio::test]
@@ -25,6 +26,7 @@ async fn test_offer() {
     let bob = Keypair::new();
     let category_name = String::from("999-club");
     let category_member = String::from("000");
+    let domain_key = get_name_key(&category_member).unwrap();
 
     let mut program_test = ProgramTest::new(
         "sns_categories",
@@ -147,6 +149,7 @@ async fn test_offer() {
         CategoryMember::deserialize(&mut &acc.data[NameRecordHeader::LEN..]).unwrap();
     assert_eq!(des.name, category_member);
     matches!(des.tag, Tag::CategoryMember);
+    assert_eq!(des.domain_key, domain_key);
 
     let ix = remove_member(
         remove_member::Accounts {

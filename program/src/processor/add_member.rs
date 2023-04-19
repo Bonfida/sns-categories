@@ -6,7 +6,7 @@ use crate::{
     error::SnsCategoriesError,
     state::Tag,
     state::{category_member::CategoryMember, category_metadata::CategoryMetadata},
-    utils::{get_category_member_key, get_category_metadata_key, get_hashed_name},
+    utils::{get_category_member_key, get_category_metadata_key, get_hashed_name, get_name_key},
 };
 use {
     bonfida_utils::{
@@ -143,7 +143,8 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
     let key = get_category_member_key(&category_member, accounts.category_metadata.key);
     check_account_key(accounts.category_member, &key)?;
 
-    let category_member = CategoryMember::new(&category_member);
+    let domain_key = get_name_key(&category_member)?;
+    let category_member = CategoryMember::new(&category_member, &domain_key);
     let size = category_member.borsh_len();
     let lamports = Rent::get()?.minimum_balance(size + NameRecordHeader::LEN);
 

@@ -12,6 +12,7 @@ use spl_name_service::state::NameRecordHeader;
 pub struct CategoryMember {
     pub tag: super::Tag,
     pub name: String,
+    pub domain_key: Pubkey,
 }
 
 impl CategoryMember {
@@ -23,10 +24,11 @@ impl CategoryMember {
 impl CategoryMember {
     pub const SEED: &'static [u8; 6] = b"member";
 
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, domain_key: &Pubkey) -> Self {
         Self {
             tag: super::Tag::CategoryMember,
             name: name.to_owned(),
+            domain_key: *domain_key,
         }
     }
 
