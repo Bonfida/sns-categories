@@ -141,7 +141,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
             accounts.name_service_program.clone(),
             accounts.category_metadata.clone(),
             accounts.central_state.clone(),
-            accounts.category_tld.clone()
+            accounts.category_tld.clone(),
         ],
         &[seeds],
     )?;

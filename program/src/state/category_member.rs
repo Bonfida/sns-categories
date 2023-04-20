@@ -40,13 +40,4 @@ impl CategoryMember {
         let result = Self::deserialize(&mut data)?;
         Ok(result)
     }
-
-    pub fn find_key(name: &str) -> (Pubkey, u8) {
-        let seeds: &[&[u8]] = &[Self::SEED, name.as_bytes()];
-        Pubkey::find_program_address(seeds, &crate::ID)
-    }
-
-    pub fn save(&self, mut dst: &mut [u8]) {
-        self.serialize(&mut dst).unwrap();
-    }
 }

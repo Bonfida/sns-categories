@@ -77,12 +77,8 @@ async fn test_offer() {
     let mut prg_test_ctx = program_test.start_with_context().await;
 
     let hashed = get_hashed_name(&category_name);
-    let (category_metadata, _) = get_seeds_and_key(
-        &spl_name_service::ID,
-        hashed,
-        None,
-        Some(&CATEGORY_TLD),
-    );
+    let (category_metadata, _) =
+        get_seeds_and_key(&spl_name_service::ID, hashed, None, Some(&CATEGORY_TLD));
 
     let ix = create_category(
         create_category::Accounts {
@@ -121,7 +117,7 @@ async fn test_offer() {
             central_state: &sns_categories::central_state::KEY,
             #[cfg(not(feature = "no-signer"))]
             signer: &Pubkey::default(),
-            category_tld: &CATEGORY_TLD
+            category_tld: &CATEGORY_TLD,
         },
         add_member::Params {
             category_member: category_member.clone(),
