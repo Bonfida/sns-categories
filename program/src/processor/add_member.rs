@@ -5,7 +5,7 @@ use solana_program::program_pack::Pack;
 use crate::{
     error::SnsCategoriesError,
     state::Tag,
-    state::{category_member::CategoryMember, category_metadata::CategoryMetadata},
+    state::{category_member::CategoryMember, category_metadata::CategoryMetadata, CATEGORY_TLD},
     utils::{get_category_member_key, get_category_metadata_key, get_hashed_name, get_name_key},
 };
 use {
@@ -55,7 +55,12 @@ pub struct Accounts<'a, T> {
     #[cons(writable)]
     pub category_member: &'a T,
 
+    /// The central state
     pub central_state: &'a T,
+
+    /// The Category TLD
+    #[cons(writable)]
+    pub category_tld: &'a T,
 
     /// The required instruction signer
     #[cons(signer)]
@@ -76,6 +81,7 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
             category_metadata: next_account_info(accounts_iter)?,
             category_member: next_account_info(accounts_iter)?,
             central_state: next_account_info(accounts_iter)?,
+            category_tld: next_account_info(accounts_iter)?,
             #[cfg(not(feature = "no-signer"))]
             signer: next_account_info(accounts_iter)?,
         };
@@ -84,6 +90,7 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
         check_account_key(accounts.central_state, &crate::central_state::KEY)?;
+        check_account_key(accounts.category_tld, &CATEGORY_TLD)?;
         #[cfg(not(feature = "no-signer"))]
         check_account_key(accounts.signer, &crate::state::SIGNER)?;
 
@@ -126,7 +133,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
         category_metadata.try_to_vec().unwrap(),
         key,
         crate::central_state::KEY,
-        None,
+        Some(CATEGORY_TLD),
     )?;
     invoke_signed(
         &ix,
@@ -134,6 +141,7 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
             accounts.name_service_program.clone(),
             accounts.category_metadata.clone(),
             accounts.central_state.clone(),
+            accounts.category_tld.clone()
         ],
         &[seeds],
     )?;

@@ -1,4 +1,4 @@
-use crate::state::ROOT_DOMAIN_ACCOUNT;
+use crate::state::{CATEGORY_TLD, ROOT_DOMAIN_ACCOUNT};
 use {
     solana_program::hash::hashv,
     solana_program::program_error::ProgramError,
@@ -14,12 +14,7 @@ pub fn get_hashed_name(name: &str) -> Vec<u8> {
 
 pub fn get_category_metadata_key(category_name: &str) -> Pubkey {
     let hashed = get_hashed_name(category_name);
-    let (key, _) = get_seeds_and_key(
-        &spl_name_service::ID,
-        hashed,
-        Some(&crate::central_state::KEY),
-        None,
-    );
+    let (key, _) = get_seeds_and_key(&spl_name_service::ID, hashed, None, Some(&CATEGORY_TLD));
     key
 }
 

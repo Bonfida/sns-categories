@@ -1,8 +1,12 @@
+use std::str::FromStr;
+
 use crate::common::utils::sign_send_instructions;
+use borsh::BorshSerialize;
 use sns_categories::instruction::{add_member, create_category, remove_member};
 use sns_categories::state::category_member::CategoryMember;
 use sns_categories::state::category_metadata::CategoryMetadata;
-use sns_categories::state::Tag;
+use sns_categories::state::{Tag, CATEGORY_TLD};
+use sns_categories::utils::get_name_key;
 use sns_categories::{entrypoint::process_instruction, utils::get_hashed_name};
 use solana_program::program_pack::Pack;
 use solana_program::pubkey::Pubkey;
@@ -16,7 +20,6 @@ use {
         signer::{keypair::Keypair, Signer},
     },
 };
-use sns_categories::utils::get_name_key;
 pub mod common;
 
 #[tokio::test]
@@ -54,6 +57,20 @@ async fn test_offer() {
         },
     );
 
+    let category_tld_account = NameRecordHeader {
+        parent_name: Pubkey::from_str("ZoAhWEqTVqHVqupYmEanDobY7dee5YKbQox9BNASZzU").unwrap(),
+        owner: sns_categories::central_state::KEY,
+        class: Pubkey::default(),
+    };
+    program_test.add_account(
+        sns_categories::state::CATEGORY_TLD,
+        Account {
+            lamports: 100_000_000_000,
+            data: category_tld_account.try_to_vec().unwrap(),
+            ..Account::default()
+        },
+    );
+
     ////
     // Create test context
     ////
@@ -63,8 +80,8 @@ async fn test_offer() {
     let (category_metadata, _) = get_seeds_and_key(
         &spl_name_service::ID,
         hashed,
-        Some(&sns_categories::central_state::KEY),
         None,
+        Some(&CATEGORY_TLD),
     );
 
     let ix = create_category(
@@ -76,6 +93,7 @@ async fn test_offer() {
             #[cfg(not(feature = "no-signer"))]
             signer: &Pubkey::default(),
             category_metadata: &category_metadata,
+            category_tld: &CATEGORY_TLD,
         },
         create_category::Params {
             category_name: category_name.clone(),
@@ -103,6 +121,7 @@ async fn test_offer() {
             central_state: &sns_categories::central_state::KEY,
             #[cfg(not(feature = "no-signer"))]
             signer: &Pubkey::default(),
+            category_tld: &CATEGORY_TLD
         },
         add_member::Params {
             category_member: category_member.clone(),
@@ -124,9 +143,9 @@ async fn test_offer() {
         .unwrap()
         .unwrap();
     let registry = NameRecordHeader::unpack_unchecked(&acc.data[..NameRecordHeader::LEN]).unwrap();
-    assert_eq!(registry.class, sns_categories::central_state::KEY);
+    assert_eq!(registry.class, Pubkey::default());
     assert_eq!(registry.owner, sns_categories::central_state::KEY);
-    assert_eq!(registry.parent_name, Pubkey::default());
+    assert_eq!(registry.parent_name, CATEGORY_TLD);
 
     let des: CategoryMetadata =
         CategoryMetadata::deserialize(&mut &acc.data[NameRecordHeader::LEN..]).unwrap();
