@@ -19,7 +19,6 @@ impl CategoryMember {
     pub const LEN: usize = std::mem::size_of::<Self>();
 }
 
-/// An example PDA state, serialized using Borsh //TODO
 #[allow(missing_docs)]
 impl CategoryMember {
     pub const SEED: &'static [u8; 6] = b"member";
