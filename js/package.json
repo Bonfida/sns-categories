@@ -2,14 +2,26 @@
   "name": "@bonfida/sns-categories",
   "version": "0.0.1",
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "repository": {
     "type": "git"
   },
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest --detectOpenHandles --coverage",
     "dev": "tsc && node dist/test.js",
