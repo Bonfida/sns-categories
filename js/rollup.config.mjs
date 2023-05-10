@@ -11,5 +11,5 @@ export default {
     },
     { file: "dist/index.cjs", format: "cjs" },
   ],
-  plugins: [typescript(), commonjs(), terser()],
+  plugins: [typescript({sourceMap: false}), commonjs(), terser()],
 };

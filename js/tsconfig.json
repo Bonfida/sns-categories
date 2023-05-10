@@ -11,7 +11,7 @@
   },
   "compilerOptions": {
     "allowJs": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "target": "es2019",
