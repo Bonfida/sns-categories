@@ -1,11 +1,10 @@
 //! Create category account
 
-use solana_program::program_pack::Pack;
-
 use crate::{
+    cpi::{self, NameServiceUpdateAccounts},
     error::SnsCategoriesError,
     state::Tag,
-    state::{category_member::CategoryMember, category_metadata::CategoryMetadata, CATEGORY_TLD},
+    state::{category_member::CategoryMember, category_metadata::CategoryMetadata},
     utils::{get_category_member_key, get_category_metadata_key, get_hashed_name, get_name_key},
 };
 use {
@@ -17,14 +16,10 @@ use {
     solana_program::{
         account_info::{next_account_info, AccountInfo},
         entrypoint::ProgramResult,
-        program::invoke_signed,
         program_error::ProgramError,
         pubkey::Pubkey,
-        rent::Rent,
         system_program,
-        sysvar::Sysvar,
     },
-    spl_name_service::{instruction::NameRegistryInstruction, state::NameRecordHeader},
 };
 
 #[derive(BorshDeserialize, BorshSerialize, BorshSize)]
@@ -58,10 +53,6 @@ pub struct Accounts<'a, T> {
     /// The central state
     pub central_state: &'a T,
 
-    /// The Category TLD
-    #[cons(writable)]
-    pub category_tld: &'a T,
-
     /// The required instruction signer
     #[cons(signer)]
     #[cfg(not(feature = "no-signer"))]
@@ -81,7 +72,6 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
             category_metadata: next_account_info(accounts_iter)?,
             category_member: next_account_info(accounts_iter)?,
             central_state: next_account_info(accounts_iter)?,
-            category_tld: next_account_info(accounts_iter)?,
             #[cfg(not(feature = "no-signer"))]
             signer: next_account_info(accounts_iter)?,
         };
@@ -90,7 +80,6 @@ impl<'a, 'b: 'a> Accounts<'a, AccountInfo<'b>> {
         check_account_key(accounts.system_program, &system_program::ID)?;
         check_account_key(accounts.name_service_program, &spl_name_service::ID)?;
         check_account_key(accounts.central_state, &crate::central_state::KEY)?;
-        check_account_key(accounts.category_tld, &CATEGORY_TLD)?;
         #[cfg(not(feature = "no-signer"))]
         check_account_key(accounts.signer, &crate::state::SIGNER)?;
 
@@ -126,24 +115,14 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
         .checked_add(1)
         .ok_or(SnsCategoriesError::Overflow)?;
 
-    let seeds: &[&[u8]] = &[&program_id.to_bytes(), &[crate::central_state::NONCE]];
-    let ix = spl_name_service::instruction::update(
-        spl_name_service::ID,
+    cpi::name_service_update(
         0,
         category_metadata.try_to_vec().unwrap(),
-        key,
-        crate::central_state::KEY,
-        Some(CATEGORY_TLD),
-    )?;
-    invoke_signed(
-        &ix,
-        &[
-            accounts.name_service_program.clone(),
-            accounts.category_metadata.clone(),
-            accounts.central_state.clone(),
-            accounts.category_tld.clone(),
-        ],
-        &[seeds],
+        NameServiceUpdateAccounts {
+            name_account: accounts.category_metadata,
+            name_service_program: accounts.name_service_program,
+            signer: accounts.central_state,
+        },
     )?;
 
     // Create category member
@@ -154,53 +133,28 @@ pub fn process(program_id: &Pubkey, accounts: &[AccountInfo], params: Params) ->
     let domain_key = get_name_key(&category_member)?;
     let category_member = CategoryMember::new(&category_member, &domain_key);
     let size = category_member.borsh_len();
-    let lamports = Rent::get()?.minimum_balance(size + NameRecordHeader::LEN);
 
-    let ix = spl_name_service::instruction::create(
-        spl_name_service::ID,
-        NameRegistryInstruction::Create {
-            hashed_name: hashed,
-            lamports,
-            space: size as u32,
+    cpi::name_service_create(
+        hashed,
+        size,
+        cpi::NameServiceCreateAccounts {
+            name_account: accounts.category_member,
+            fee_payer: accounts.fee_payer,
+            name_service_program: accounts.name_service_program,
+            system_program: accounts.system_program,
+            signer: accounts.central_state,
+            parent_account: accounts.category_metadata,
         },
-        key,
-        *accounts.fee_payer.key,
-        crate::central_state::KEY,
-        None,
-        Some(*accounts.category_metadata.key),
-        Some(crate::central_state::KEY),
-    )?;
-    invoke_signed(
-        &ix,
-        &[
-            accounts.name_service_program.clone(),
-            accounts.system_program.clone(),
-            accounts.fee_payer.clone(),
-            accounts.category_member.clone(),
-            accounts.category_metadata.clone(),
-            accounts.central_state.clone(),
-        ],
-        &[seeds],
     )?;
 
-    // Update category member information
-    let ix = spl_name_service::instruction::update(
-        spl_name_service::ID,
+    cpi::name_service_update(
         0,
         category_member.try_to_vec().unwrap(),
-        key,
-        crate::central_state::KEY,
-        Some(*accounts.category_metadata.key),
-    )?;
-    invoke_signed(
-        &ix,
-        &[
-            accounts.name_service_program.clone(),
-            accounts.category_member.clone(),
-            accounts.central_state.clone(),
-            accounts.category_metadata.clone(),
-        ],
-        &[seeds],
+        cpi::NameServiceUpdateAccounts {
+            name_account: accounts.category_member,
+            name_service_program: accounts.name_service_program,
+            signer: accounts.central_state,
+        },
     )?;
 
     Ok(())

@@ -1,87 +1,111 @@
+use std::convert::TryInto;
+
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke_signed,
-    program_error::ProgramError, program_pack::Pack, pubkey::Pubkey, rent::Rent,
-    system_instruction::create_account, sysvar::Sysvar,
+    account_info::AccountInfo, program::invoke_signed, program_error::ProgramError,
+    program_pack::Pack, rent::Rent, sysvar::Sysvar,
 };
+use spl_name_service::{instruction::NameRegistryInstruction, state::NameRecordHeader};
 
-#[allow(missing_docs)]
-pub struct Cpi {}
+pub struct NameServiceCreateAccounts<'a, 'b> {
+    pub name_account: &'b AccountInfo<'a>,
+    pub fee_payer: &'b AccountInfo<'a>,
+    pub name_service_program: &'b AccountInfo<'a>,
+    pub system_program: &'b AccountInfo<'a>,
+    pub signer: &'b AccountInfo<'a>,
+    pub parent_account: &'b AccountInfo<'a>,
+}
 
-impl Cpi {
-    #[allow(missing_docs)]
-    pub fn create_account<'a>(
-        program_id: &Pubkey,
-        system_program: &AccountInfo<'a>,
-        fee_payer: &AccountInfo<'a>,
-        account_to_create: &AccountInfo<'a>,
-        signer_seeds: &[&[u8]],
-        space: usize,
-    ) -> ProgramResult {
-        let create_state_instruction = create_account(
-            fee_payer.key,
-            account_to_create.key,
-            Rent::get()?.minimum_balance(space),
-            space as u64,
-            program_id,
-        );
+pub fn name_service_create(
+    hashed_name: Vec<u8>,
+    size: usize,
+    accounts: NameServiceCreateAccounts,
+) -> Result<(), ProgramError> {
+    let lamports = Rent::get()?.minimum_balance(size.checked_add(NameRecordHeader::LEN).unwrap());
+    let ix = spl_name_service::instruction::create(
+        spl_name_service::ID,
+        NameRegistryInstruction::Create {
+            hashed_name,
+            lamports,
+            space: size.try_into().unwrap(),
+        },
+        *accounts.name_account.key,
+        *accounts.fee_payer.key,
+        crate::central_state::KEY,
+        None,
+        Some(*accounts.parent_account.key),
+        Some(crate::central_state::KEY),
+    )?;
+    invoke_signed(
+        &ix,
+        &[
+            accounts.name_service_program.clone(),
+            accounts.system_program.clone(),
+            accounts.fee_payer.clone(),
+            accounts.name_account.clone(),
+            accounts.signer.clone(),
+            accounts.parent_account.clone(),
+        ],
+        &[&crate::central_state::SIGNER_SEEDS],
+    )?;
+    Ok(())
+}
 
-        invoke_signed(
-            &create_state_instruction,
-            &[
-                system_program.clone(),
-                fee_payer.clone(),
-                account_to_create.clone(),
-            ],
-            &[signer_seeds],
-        )
-    }
+pub struct NameServiceUpdateAccounts<'a, 'b> {
+    pub name_account: &'b AccountInfo<'a>,
+    pub name_service_program: &'b AccountInfo<'a>,
+    pub signer: &'b AccountInfo<'a>,
+}
 
-    #[allow(clippy::too_many_arguments)]
-    pub fn allocate_and_create_token_account<'a>(
-        token_account_owner: &Pubkey,
-        spl_token_program: &AccountInfo<'a>,
-        payer_info: &AccountInfo<'a>,
-        signer_seeds: &[&[u8]],
-        token_account: &AccountInfo<'a>,
-        mint_account: &AccountInfo<'a>,
-        rent_account: &AccountInfo<'a>,
-        system_program_info: &AccountInfo<'a>,
-    ) -> Result<(), ProgramError> {
-        msg!("Initializing token account");
-        let size = spl_token::state::Account::LEN;
-        let required_lamports = Rent::get()?.minimum_balance(size);
-        let ix_allocate = create_account(
-            payer_info.key,
-            token_account.key,
-            required_lamports,
-            size as u64,
-            &spl_token::ID,
-        );
-        invoke_signed(
-            &ix_allocate,
-            &[
-                system_program_info.clone(),
-                payer_info.clone(),
-                token_account.clone(),
-            ],
-            &[signer_seeds],
-        )?;
-        let ix_initialize = spl_token::instruction::initialize_account2(
-            &spl_token::ID,
-            token_account.key,
-            mint_account.key,
-            token_account_owner,
-        )?;
-        invoke_signed(
-            &ix_initialize,
-            &[
-                spl_token_program.clone(),
-                token_account.clone(),
-                mint_account.clone(),
-                rent_account.clone(),
-            ],
-            &[signer_seeds],
-        )?;
-        Ok(())
-    }
+pub fn name_service_update(
+    offset: u32,
+    data: Vec<u8>,
+    accounts: NameServiceUpdateAccounts,
+) -> Result<(), ProgramError> {
+    let ix = spl_name_service::instruction::update(
+        spl_name_service::ID,
+        offset,
+        data,
+        *accounts.name_account.key,
+        crate::central_state::KEY,
+        None,
+    )?;
+    invoke_signed(
+        &ix,
+        &[
+            accounts.name_service_program.clone(),
+            accounts.name_account.clone(),
+            accounts.signer.clone(),
+        ],
+        &[&crate::central_state::SIGNER_SEEDS],
+    )?;
+    Ok(())
+}
+
+pub struct NameServiceDeleteAccounts<'a, 'b> {
+    pub name_account: &'b AccountInfo<'a>,
+    pub name_service_program: &'b AccountInfo<'a>,
+    pub system_program: &'b AccountInfo<'a>,
+    pub signer: &'b AccountInfo<'a>,
+    pub refund_target: &'b AccountInfo<'a>,
+}
+
+pub fn name_service_delete(accounts: NameServiceDeleteAccounts) -> Result<(), ProgramError> {
+    let ix = spl_name_service::instruction::delete(
+        spl_name_service::ID,
+        *accounts.name_account.key,
+        crate::central_state::KEY,
+        *accounts.refund_target.key,
+    )?;
+    invoke_signed(
+        &ix,
+        &[
+            accounts.name_service_program.clone(),
+            accounts.system_program.clone(),
+            accounts.refund_target.clone(),
+            accounts.name_account.clone(),
+            accounts.signer.clone(),
+        ],
+        &[&crate::central_state::SIGNER_SEEDS],
+    )?;
+    Ok(())
 }

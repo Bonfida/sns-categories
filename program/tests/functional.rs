@@ -117,7 +117,6 @@ async fn test_offer() {
             central_state: &sns_categories::central_state::KEY,
             #[cfg(not(feature = "no-signer"))]
             signer: &Pubkey::default(),
-            category_tld: &CATEGORY_TLD,
         },
         add_member::Params {
             category_member: category_member.clone(),

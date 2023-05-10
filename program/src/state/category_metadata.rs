@@ -14,12 +14,6 @@ pub struct CategoryMetadata {
 }
 
 impl CategoryMetadata {
-    pub const LEN: usize = std::mem::size_of::<Self>();
-}
-
-impl CategoryMetadata {
-    pub const SEED: &'static [u8; 8] = b"metadata";
-
     pub fn new(name: &str) -> Self {
         Self {
             tag: super::Tag::CategoryMetadata,
@@ -30,7 +24,7 @@ impl CategoryMetadata {
 
     pub fn from_buffer(a: &AccountInfo, expected_tag: super::Tag) -> Result<Self, ProgramError> {
         let mut data = &a.data.borrow()[NameRecordHeader::LEN..] as &[u8];
-        if data[0] != expected_tag as u8 && data[0] != super::Tag::Uninitialized as u8 {
+        if data[0] != expected_tag as u8 {
             return Err(SnsCategoriesError::DataTypeMismatch.into());
         }
         let result = Self::deserialize(&mut data)?;
