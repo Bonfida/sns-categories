@@ -19,7 +19,6 @@ export enum Tag {
 }
 
 export class CategoryMember {
-  static SEED = "member";
   tag: Tag;
   name: string;
   domainKey: PublicKey;
@@ -31,8 +30,8 @@ export class CategoryMember {
         kind: "struct",
         fields: [
           ["tag", "u8"],
-          ["name", "string"],
           ["domainKey", [32]],
+          ["name", "string"],
         ],
       },
     ],
@@ -63,7 +62,6 @@ export class CategoryMember {
 }
 
 export class CategoryMetadata {
-  static SEED = "metadata";
   tag: Tag;
   nbRegisteredDomain: number;
   name: string;
