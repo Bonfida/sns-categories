@@ -16,6 +16,8 @@ Create, manage and interact with SNS Optics categories on-chain
 </strong>
 </p>
 
+![diagram](./assets/diagram.png)
+
 <br />
 <h2 align="center">Introduction</h2>
 <br />
