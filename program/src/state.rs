@@ -8,7 +8,7 @@ use {
 pub mod category_member;
 pub mod category_metadata;
 
-pub const SIGNER: Pubkey = pubkey!("G9tP6ZonwNj2qTdPpCrTsrCQgDovppxjCddfidNwFq5n"); // TODO change
+pub const SIGNER: Pubkey = pubkey!("EXYfL8WTxiVAP8P5xQJLB4Y19JkZoP2jKtgnvvBfwAMJ");
 pub const ROOT_DOMAIN_ACCOUNT: Pubkey = pubkey!("58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx");
 pub const CATEGORY_TLD: Pubkey = pubkey!("7Eg3kuaLtyGaKBBHiQm4YGGTmyrADrkWiMPzUuUdLua9");
 

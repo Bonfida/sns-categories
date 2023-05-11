@@ -16,7 +16,9 @@ export const SNS_CATEGORIES_ID = new PublicKey(""); //TODO
  */
 export const SNS_CATEGORIES_ID_DEVNET = new PublicKey(""); //TODO
 
-export const SIGNER = new PublicKey("");
+export const SIGNER = new PublicKey(
+  "EXYfL8WTxiVAP8P5xQJLB4Y19JkZoP2jKtgnvvBfwAMJ"
+);
 
 /**
  * This function can be used as a js binding example.
