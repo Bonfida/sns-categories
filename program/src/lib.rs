@@ -17,4 +17,4 @@ pub mod cpi;
 
 pub mod utils;
 
-declare_id_with_central_state!("G9tP6ZonwNj2qTdPpCrTsrCQgDovppxjCddfidNwFq5n");
+declare_id_with_central_state!("6c4faDgogWngP5dFsj1AKFRDtn9zbsae3sgZPuaPfgLK");
