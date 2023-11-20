@@ -111,4 +111,7 @@ export const CATEGORIES = new Map<string, string>([
   ["EbEPhBvvvkrPVTkUUh8k7ovce1LzjFhpJbXuYGwCfM9E", "2-char-ln-nl"],
   ["9yYjq13mUa5BJsx73P9sPuCG2ZeBfVZUSZiHztdccqr5", "negative-999-club"],
   ["GKkuqV4Wsdt4QceVwB5BHzqsi5rBVNxCvC6zbFxp1sdR", "gold-people-emojis"],
+  ["7qNNmeZnX3wxyp1S3MYX2iVR1bcSKmYZM3p6F3N3yVP5", "arabic-99-club"],
+  ["DV17PNvSHQ9w4fUvnQ3xhefaqwCp72h1oXn1fHNnkBEU", "arabic-999-club"],
+  ["HP4wPzN8BRyS4ZLhbahw8dXgEbdScxR6yva7Jf9s8fcj", "arabic-10k-club"],
 ]);
