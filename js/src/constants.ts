@@ -114,4 +114,5 @@ export const CATEGORIES = new Map<string, string>([
   ["7qNNmeZnX3wxyp1S3MYX2iVR1bcSKmYZM3p6F3N3yVP5", "arabic-99-club"],
   ["DV17PNvSHQ9w4fUvnQ3xhefaqwCp72h1oXn1fHNnkBEU", "arabic-999-club"],
   ["HP4wPzN8BRyS4ZLhbahw8dXgEbdScxR6yva7Jf9s8fcj", "arabic-10k-club"],
+  ["G5pHKwZBprm3b3XfYSN5GoBok2uybEvDKkYw4N9C9N5m", "royal-families"],
 ]);
