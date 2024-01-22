@@ -1,4 +1,4 @@
-import { deserializeUnchecked, Schema } from "borsh";
+import { deserialize } from "borsh";
 import { Connection, PublicKey } from "@solana/web3.js";
 import {
   getHashedNameSync,
@@ -23,19 +23,13 @@ export class CategoryMember {
   domainKey: PublicKey;
   name: string;
 
-  static schema: Schema = new Map([
-    [
-      CategoryMember,
-      {
-        kind: "struct",
-        fields: [
-          ["tag", "u8"],
-          ["domainKey", [32]],
-          ["name", "string"],
-        ],
-      },
-    ],
-  ]);
+  static schema = {
+    struct: {
+      tag: "u8",
+      domainKey: { array: { type: "u8", len: 32 } },
+      name: "string",
+    },
+  };
 
   constructor(obj: { tag: number; name: string; domainKey: Uint8Array }) {
     this.tag = obj.tag as Tag;
@@ -44,7 +38,7 @@ export class CategoryMember {
   }
 
   static deserialize(data: Buffer): CategoryMember {
-    return deserializeUnchecked(this.schema, CategoryMember, data);
+    return new CategoryMember(deserialize(this.schema, data) as any);
   }
 
   static async retrieve(connection: Connection, key: PublicKey) {
@@ -66,19 +60,13 @@ export class CategoryMetadata {
   nbRegisteredDomain: number;
   name: string;
 
-  static schema: Schema = new Map([
-    [
-      CategoryMember,
-      {
-        kind: "struct",
-        fields: [
-          ["tag", "u8"],
-          ["nbRegisteredDomain", "u32"],
-          ["name", "string"],
-        ],
-      },
-    ],
-  ]);
+  static schema = {
+    struct: {
+      tag: "u8",
+      nbRegisteredDomain: "u32",
+      name: "string",
+    },
+  };
 
   constructor(obj: { tag: number; nbRegisteredDomain: number; name: string }) {
     this.tag = obj.tag as Tag;
@@ -86,8 +74,8 @@ export class CategoryMetadata {
     this.name = obj.name;
   }
 
-  static deserialize(data: Buffer): CategoryMember {
-    return deserializeUnchecked(this.schema, CategoryMember, data);
+  static deserialize(data: Buffer): CategoryMetadata {
+    return new CategoryMetadata(deserialize(this.schema, data) as any);
   }
 
   static async retrieve(connection: Connection, key: PublicKey) {

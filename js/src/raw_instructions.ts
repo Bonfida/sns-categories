@@ -1,6 +1,5 @@
 // This file is auto-generated. DO NOT EDIT
-import BN from "bn.js";
-import { Schema, serialize } from "borsh";
+import { serialize } from "borsh";
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 
 export interface AccountKey {
@@ -11,18 +10,12 @@ export interface AccountKey {
 export class removeMemberInstruction {
   tag: number;
   categoryMember: string;
-  static schema: Schema = new Map([
-    [
-      removeMemberInstruction,
-      {
-        kind: "struct",
-        fields: [
-          ["tag", "u8"],
-          ["categoryMember", "string"],
-        ],
-      },
-    ],
-  ]);
+  static schema = {
+    struct: {
+      tag: "u8",
+      categoryMember: "string",
+    },
+  };
   constructor(obj: { categoryMember: string }) {
     this.tag = 2;
     this.categoryMember = obj.categoryMember;
@@ -87,18 +80,12 @@ export class removeMemberInstruction {
 export class createCategoryInstruction {
   tag: number;
   categoryName: string;
-  static schema: Schema = new Map([
-    [
-      createCategoryInstruction,
-      {
-        kind: "struct",
-        fields: [
-          ["tag", "u8"],
-          ["categoryName", "string"],
-        ],
-      },
-    ],
-  ]);
+  static schema = {
+    struct: {
+      tag: "u8",
+      categoryName: "string",
+    },
+  };
   constructor(obj: { categoryName: string }) {
     this.tag = 0;
     this.categoryName = obj.categoryName;
@@ -164,19 +151,13 @@ export class addMemberInstruction {
   tag: number;
   categoryName: string;
   categoryMember: string;
-  static schema: Schema = new Map([
-    [
-      addMemberInstruction,
-      {
-        kind: "struct",
-        fields: [
-          ["tag", "u8"],
-          ["categoryName", "string"],
-          ["categoryMember", "string"],
-        ],
-      },
-    ],
-  ]);
+  static schema = {
+    struct: {
+      tag: "u8",
+      categoryName: "string",
+      categoryMember: "string",
+    },
+  };
   constructor(obj: { categoryName: string; categoryMember: string }) {
     this.tag = 1;
     this.categoryName = obj.categoryName;
