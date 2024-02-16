@@ -11,7 +11,7 @@ import { CategoryMember, CategoryMetadata, CATEGORY_TLD } from "./state";
  */
 export const SNS_CATEGORIES_ID = new PublicKey(
   "6c4faDgogWngP5dFsj1AKFRDtn9zbsae3sgZPuaPfgLK"
-); //TODO
+);
 
 export const SIGNER = new PublicKey(
   "EXYfL8WTxiVAP8P5xQJLB4Y19JkZoP2jKtgnvvBfwAMJ"
