@@ -116,4 +116,7 @@ export const CATEGORIES = new Map<string, string>([
   ["HP4wPzN8BRyS4ZLhbahw8dXgEbdScxR6yva7Jf9s8fcj", "arabic-10k-club"],
   ["G5pHKwZBprm3b3XfYSN5GoBok2uybEvDKkYw4N9C9N5m", "royal-families"],
   ["CVwktTi1J2qBqA54P4izc6DrZdWLH7Ao83G47DrNqRq6", "1k-forebears"],
+  ["9DvEVrUvojBPVED3W7gxRZvmsLz231ppjNoS8QCwsDop", "legendary-pokemon"],
+  ["GsyPXqQqL9wLWwtDvhgDo25T1vuffU614BLBiyQySEMj", "mythical-pokemon"],
+  ["BjVVVkQa2xygh6tTpH8z29CZe8VTZPtsSVo8adpTrpb9", "gym-leaders-pokemon"],
 ]);
