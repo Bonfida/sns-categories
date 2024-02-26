@@ -82,3 +82,11 @@ const filters: MemcmpFilter[] = [
   },
 ];
 ```
+
+## Reproducible build
+
+A reproducible build script (`build.sh`) can be used to build the program using docker
+
+## Security
+
+For security disclosures or to report a bug, please visit [ImmuneFi](https://immunefi.com/bounty/bonfida/) for more information on our bug bounty program.
