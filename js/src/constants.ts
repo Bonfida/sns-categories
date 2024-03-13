@@ -119,4 +119,5 @@ export const CATEGORIES = new Map<string, string>([
   ["9DvEVrUvojBPVED3W7gxRZvmsLz231ppjNoS8QCwsDop", "legendary-pokemon"],
   ["GsyPXqQqL9wLWwtDvhgDo25T1vuffU614BLBiyQySEMj", "mythical-pokemon"],
   ["BjVVVkQa2xygh6tTpH8z29CZe8VTZPtsSVo8adpTrpb9", "gym-leaders-pokemon"],
+  ["9UrywFULZv46cJ4MqYfFHAE4RLoamoUAQp8xxS8bsAuw", "french-pokemon"],
 ]);
