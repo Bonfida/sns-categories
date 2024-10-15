@@ -106,4 +106,8 @@ export const CATEGORIES = new Map<string, string>([
   ["BjVVVkQa2xygh6tTpH8z29CZe8VTZPtsSVo8adpTrpb9", "gym-leaders-pokemon"],
   ["9UrywFULZv46cJ4MqYfFHAE4RLoamoUAQp8xxS8bsAuw", "french-pokemon"],
   ["HtPQ8ssuddqHoLWNw89HBNptxTt3nKbyYXxisbCDJMWv", "negative-99-club"],
+  ["DyhMwSXZ8weKUeYfjdJZMZV3GaHak387bRT5Tj7dqBUr", "solmojis-9-club"],
+  ["GYKGR3nKhSk58tuZzdXZHiJRcfqgQeAno3MAPQzDEtiF", "solmojis-99-club"],
+  ["B2WbZ8eb1RWNVDwfS5PBzQSxKX4RaiG6zRsgqh8e5LAZ", "solmojis-999-club"],
+  ["HzvyLcK3sNpSKFQAmjHr39UVF4dqHV49oafjW83M5kiE", "solmojis-10k-club"],
 ]);
