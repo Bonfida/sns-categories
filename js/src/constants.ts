@@ -112,4 +112,5 @@ export const CATEGORIES = new Map<string, string>([
   ["HzvyLcK3sNpSKFQAmjHr39UVF4dqHV49oafjW83M5kiE", "solmojis-10k-club"],
   ["4d7Di4EnxVinWVc1exeg65Py2heaKRiMcpMBQEiud2zG", "gen2-pokemon"],
   ["DwPLTYqMs4UwcziCjXwArTVXLzU9jbL2j4ZYdrRMh7Tg", "gen3-pokemon"],
+  ["4Wv5WV6nMo69vX1PxE9myCUpJ74xQRorzoHNeSmnyn2d", "water-margin"]
 ]);
